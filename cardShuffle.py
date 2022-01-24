@@ -1,61 +1,24 @@
 import random
 import time
 from tqdm import tqdm
-
+import matplotlib.pyplot as plt
 
 def main():
+    #nameFileGraph, amountPlayers, amountShuffles, repeats, rangePartingMin, rangePartingMax, chance1to1
+    case("test", 100, 1, 100, 0, 100, 1)
+    case("test123", 100, 1, 1000, 40, 60, 1)
 
-    #Getting the paramaters for the program from the user
-    amountShuffles = input("Choose how many times you would like each player to shuffle (1 or bigger):\n")
-    try:
-        amountShuffles = int(amountShuffles)
-    except:
-        print("Not a valid input")
+def case(nameFileGraph, amountPlayers, amountShuffles, repeats, rangePartingMin, rangePartingMax, chance1to1):
 
-    amountPlayers = input("Choose an amount of players(1 or bigger):\n")
-    try:
-        amountPlayers = int(amountPlayers)
-    except:
-        print("Not a valid input")
-
-    rangePartingMin = input("Parting Minimun (number between 0-50):\n")    # Choose the percentage of how bad the worst player splits the deck. like 'minimum: 40', 'maximum: 60'. This means the worst player can at worst end up with 40% of the cards in one hand and 60% of cards in the other. the min needs to be 50 or lower, and the max 50 or higher so that it is possible to plot it agains the perfect player
-
-    try:
-        rangePartingMin = float(rangePartingMin) 
-    except:
-        print("Not a valid input")
-    
-
-    rangePartingMax = input("Parting Maximum (number between 50-100):\n")
-    try:
-        rangePartingMax = float(rangePartingMax) 
-    except:
-        print("Not a valid input")
-
-
-    chance1to1 = input("1-to-1 minumum (number between 1-100):\n")   #Choose the percentage of how bad the worst player stacks the cards 1-to-1 on the deck. Example: '80'. this means the worst player will have a 20% chance of messing up and not putting the correct card on the stack 
-    try:
-        chance1to1 = float(chance1to1) 
-    except:
-        print("Not a valid input")
-
-
-
-    #NEEDS SOME HELP
-    # How many times we let the players perform their routine of an X amount of shuffles. This is done so we can take the average similarity of all their attempts and to see their actual level. 
-    playerAttempts = 100
-
-
-    #start timing after the inputs are given, so it only times the runtime of the program
-    start_time = time.time()
-
-
+    # #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # # How many times we let the players repeat their routine of an X amount of shuffles. This is done so we can take the average score of all their attempts. 
+    # repeats = 10000
     
     #Printing some data about the program to make it look a little nicer
     print("")
     print("")
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("Paramaters:", amountPlayers,"|", amountShuffles,"|",playerAttempts,"|", rangePartingMin,"|",rangePartingMax,"|",chance1to1)
+    print("Paramaters:", amountPlayers,"|", amountShuffles,"|",repeats,"|", rangePartingMin,"|",rangePartingMax,"|",chance1to1)
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     
         
@@ -69,33 +32,22 @@ def main():
     print("")
     print("All the players performing their shuffles and finding their results")
     sumOfAllAttempts = []
-    for attempts in tqdm(range(playerAttempts)):
+    for rep in tqdm(range(repeats)):
                
         finalDecks = shuffle(allPlayers, amountShuffles)   #Performing the shuffle
-        print(finalDecks)
 
-        sumOfAllAttempts = similarityFinder(finalDecks, sumOfAllAttempts, amountPlayers, attempts)   #finding the results of each attempt per player
-    
-
-    print(sumOfAllAttempts)
+        sumOfAllAttempts = similarityFinder(finalDecks, sumOfAllAttempts, amountPlayers, rep)   #finding the results of each attempt per player
 
     #finding the avg per player and making / saving the graphs
-    print("finding the avg per player and making / saving the graphs")
-    playerPerfectAverages, playerStreakAverages = avgFinder(sumOfAllAttempts, amountPlayers, playerAttempts)
-
-    graphMaker(playerPerfectAverages, playerStreakAverages)
-
-
-
-    #Printing the final runtime of the program
     print("")
-    print("=== %s seconds ===" % (time.time() - start_time))
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    print("finding the avg per player and making / saving the graphs")
+    playerPerfectAverages, playerStreakAverages = avgFinder(sumOfAllAttempts, amountPlayers, repeats)
+
+    graphMaker(nameFileGraph, playerPerfectAverages, playerStreakAverages, amountPlayers, amountShuffles, repeats, rangePartingMin, rangePartingMax, chance1to1)
 
 
 def makeAllPlayers(amountPlayers, rangePartingMin, rangePartingMax, chance1to1):
     
-     #This is only to show the progress of this function
     if amountPlayers == 1:
         minPartingIncrement = (50 - rangePartingMin)/(amountPlayers)
         maxPartingIncrement = (rangePartingMax - 50)/(amountPlayers)
@@ -113,8 +65,8 @@ def makeAllPlayers(amountPlayers, rangePartingMin, rangePartingMax, chance1to1):
         allPlayers.append(onePlayer)
     else:
         for i in tqdm(range(amountPlayers)):
-            onePlayer = [50-minPartingIncrement*i, 50+maxPartingIncrement*i, 100-chance1to1Increment*i]
-            allPlayers.append(onePlayer)
+            morePlayer = [50-minPartingIncrement*i, 50+maxPartingIncrement*i, 100-chance1to1Increment*i]
+            allPlayers.append(morePlayer)
     return allPlayers
         
 
@@ -174,23 +126,20 @@ def shuffle(allPlayers, amountShuffles):
 
 
 def similarityFinder(finalDecks, sumOfAllAttempts, amountPlayers, attempts):
-    perfectSimular = 0
-    streakSimular = 0
-
     for player in range(amountPlayers):
+    
+        #the variables where the results of each player temperarily get stored
+        perfectSimular = 0
+        streakSimular = 0
 
         #Finding amount of cards that have the same exact position as compared to the perfectly shuffled deck
-        # PerfectSimular logic STILL TODO 
-        if player == 2:
-            perfectSimular = perfectSimular + attempts
-        else:
-            perfectSimular = 0
+        for card in range(len(finalDecks[0])):
+            if finalDecks[0][card] == finalDecks[player][card]: #compare against player 0 since that one is the perfectly shuffled deck
+                perfectSimular += 1
+
 
         #streakSimular logic STILL TODO
-        if player == 2:
-            streakSimular = streakSimular + attempts
-        else:
-            streakSimular = 0
+
 
         #adding the results to the player's running total
         if attempts == 0:
@@ -215,12 +164,49 @@ def avgFinder(sumOfAllAttempts, amountPlayers, playerAttempts):
 
 
 
-def graphMaker(playerPerfectAverages, playerStreakAverages):
-    done = False
+def graphMaker(nameFileGraph, playerPerfectAverages, playerStreakAverages, amountPlayers, amountShuffles, repeats, rangePartingMin, rangePartingMax, chance1to1):
+    
+    # On the x axis we will have the players
+    x = list(range(0, amountPlayers)) 
+
+    # On the y axis we will have the results of the players
+    y1 = playerPerfectAverages
+    y2 = playerStreakAverages
+
+    #Plot both lines
+    plt.plot(x, y1, color='b', label='Perfectly similar Cards')
+    plt.plot(x, y2, color='g', label='Streak similar Cards')
+
+    #Naming the x and y-axis and adding a legend
+    plt.xlabel("Players")
+    plt.ylabel("Amount of cards")
+    plt.legend()
+
+    #Add a title which displays the parameters this case ran with
+    titleData = (
+        "Players: "+str(amountPlayers)+"        "+"Shuffles: "+str(amountShuffles)+"        "+"Repeats: "+str(repeats)+"\n"
+        +"Parting range: "+str(rangePartingMin)+"-"+str(rangePartingMax)+"      "+" Minimum Stacking chance: "+str(chance1to1)
+    )
+    plt.title(titleData)
+    #Save the plot in a file, with the filename given for this case.
+    #amountPlayers,"|", amountShuffles,"|",repeats,"|", rangePartingMin,"|",rangePartingMax,"|",chance1to1
+    nameFileGraph = nameFileGraph+".png"
+    plt.savefig(nameFileGraph)
+    #plt.show()
+    plt.clf()
+
 
 
 #Running the program
+start_time = time.time()
+
 main()
+
+print("")
+print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+print("")
+print("=== %s seconds ===" % (time.time() - start_time))
+print("")
 
 # startTimeFullProgram = time.time() 
 # main(amountShuffles, amountPlayers, rangePartingMin,rangePartingMax,chance1to1)
