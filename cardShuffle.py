@@ -5,35 +5,40 @@ import matplotlib.pyplot as plt
 
 
 def main():  
-    #To time the runtime of the program
-    start_time = time.time()
+    #To find the runtime to run all the given cases
+    startTime = time.time()
     
 
     # Here it's possible to make all the cases you want to test out.
     # The inputs are: 
-    #   - filename for the graph 
+    #   - Filename for the graph 
     #   - Amount of players (1 or more) 
     #   - Amount of shuffles per player (1 or more) 
     #   - Amount of repeats per player (1 or more) 
     #   - Parting minimum (0-50) 
     #   - Parting maximum (50-100) 
-    #   - minimum stacking chance (1-100)
-    case("test1", 100, 1, 100, 0, 100, 0)
-    case("test2", 100, 1, 1000, 0, 100, 0)
+    #   - Minimum stacking chance (1-100)
+    case("test1", 100, 1, 1000, 0, 100, 1)
+    case("test2", 100, 1, 1000, 0, 100, 100)
+    case("test3", 100, 1, 1000, 50, 50, 1)
+
 
 
     # Printing the runtime it took to run all the given cases
     print("")
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     print("")
-    print("Runtime: "+time.strftime("%H:%M:%S", time.gmtime(time.time() - start_time)))
-    print("=== %s seconds ===" % (time.time() - start_time))
+    print("Runtime: "+time.strftime("%H:%M:%S", time.gmtime(time.time() - startTime)))
+    print("=== %s seconds ===" % (time.time() - startTime))
     print("")
 
 
 # The function for running a scenario
 def case(nameFileGraph, amountPlayers, amountShuffles, repeats, rangePartingMin, rangePartingMax, stackingChance):
     
+    # To find the runtime of the specific case
+    startTimeCase = time.time()
+
     # Printing some data about the program to make it look a little nicer
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     print("Paramaters:", amountPlayers,"|", amountShuffles,"|",repeats,"|", rangePartingMin,"|",rangePartingMax,"|",stackingChance)
@@ -49,7 +54,7 @@ def case(nameFileGraph, amountPlayers, amountShuffles, repeats, rangePartingMin,
     print("")
     print("All the players performing their shuffles and finding their results")
     sumOfAllAttempts = []
-    for rep in tqdm(range(repeats)): # Repeat the case x amount of times to get a quantative result, less repeats result a bigger chance that the final graph includes big outliers  
+    for rep in tqdm(range(repeats)): # Repeat the case x amount of times to get a more quantative result, the more repeats the less outliers in the final graph and thus a more streamlined result 
                
         finalDecks = shuffle(allPlayers, amountShuffles)   # Performing the shuffle
 
@@ -61,7 +66,7 @@ def case(nameFileGraph, amountPlayers, amountShuffles, repeats, rangePartingMin,
     print("finding the avg per player and making / saving the graphs")
     playerPerfectAverages, playerStreakAverages = avgFinder(sumOfAllAttempts, amountPlayers, repeats)
 
-    graphMaker(nameFileGraph, playerPerfectAverages, playerStreakAverages, amountPlayers, amountShuffles, repeats, rangePartingMin, rangePartingMax, stackingChance)
+    graphMaker(startTimeCase, nameFileGraph, playerPerfectAverages, playerStreakAverages, amountPlayers, amountShuffles, repeats, rangePartingMin, rangePartingMax, stackingChance)
 
 
 
@@ -174,6 +179,7 @@ def similarityFinder(finalDecks, sumOfAllAttempts, amountPlayers, attempts):
                         if finalDecks[0][card-1] == finalDecks[player][card2-1]: # If the card next to it is also similar save both cards in remembercards
                             remembercard.append(card2-1)
                             remembercard.append(card2)
+                    break                                                        # Break so we go to the next card after we've found the current card and looked if it was a streak, since we don't have to keep going through the second loop after we've found it   
         remembercard = list(dict.fromkeys(remembercard))                         # Removing the duplicates so we have a list of all the cards that are in the same order as the perfectly shuffled deck
         streakSimular = len(remembercard)                   
 
@@ -202,7 +208,7 @@ def avgFinder(sumOfAllAttempts, amountPlayers, playerAttempts):
     
 
 
-def graphMaker(nameFileGraph, playerPerfectAverages, playerStreakAverages, amountPlayers, amountShuffles, repeats, rangePartingMin, rangePartingMax, stackingChance):
+def graphMaker(startTimeCase, nameFileGraph, playerPerfectAverages, playerStreakAverages, amountPlayers, amountShuffles, repeats, rangePartingMin, rangePartingMax, stackingChance):
     
     # On the x axis we will have the players
     x = list(range(0, amountPlayers)) 
@@ -227,6 +233,10 @@ def graphMaker(nameFileGraph, playerPerfectAverages, playerStreakAverages, amoun
     )
     plt.title(titleData)
 
+    # Add the runtime it took for this program to run to the graph
+    runtimeCase = "Runtime: "+time.strftime("%H:%M:%S", time.gmtime(time.time() - startTimeCase))
+    plt.figtext(0.81,0.01, runtimeCase, fontsize=9, bbox={"facecolor":"orange", "alpha":0.2})
+    
     # Save the plot in a file, with the filename given for this case.
     nameFileGraph = nameFileGraph+".png"
     plt.savefig(nameFileGraph)
