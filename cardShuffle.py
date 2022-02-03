@@ -18,7 +18,6 @@ def main():
     #   - Parting minimum (0-50) 
     #   - Parting maximum (50-100) 
     #   - Minimum stacking chance (1-100)
-
     case("MainResults", 100, 1, 10000, 0, 100, 1)
     case("MainResults2Shuffles", 100, 2, 10000 , 0, 100, 1) 
     case("PartingResults", 100, 1, 10000, 0, 100, 100)
@@ -252,7 +251,3 @@ def graphMaker(startTimeCase, nameFileGraph, playerPerfectAverages, playerStreak
 
 #Running the program
 main()
-
-
-
-
