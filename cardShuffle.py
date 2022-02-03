@@ -18,9 +18,11 @@ def main():
     #   - Parting minimum (0-50) 
     #   - Parting maximum (50-100) 
     #   - Minimum stacking chance (1-100)
-    case("test1", 100, 1, 1000, 0, 100, 1)
-    case("test2", 100, 1, 1000, 0, 100, 100)
-    case("test3", 100, 1, 1000, 50, 50, 1)
+
+    case("MainResults", 100, 1, 10000, 0, 100, 1)
+    case("MainResults2Shuffles", 100, 2, 10000 , 0, 100, 1) 
+    case("PartingResults", 100, 1, 10000, 0, 100, 100)
+    case("StackingResults", 100, 1, 10000, 50, 50, 1)
 
 
 
@@ -54,7 +56,7 @@ def case(nameFileGraph, amountPlayers, amountShuffles, repeats, rangePartingMin,
     print("")
     print("All the players performing their shuffles and finding their results")
     sumOfAllAttempts = []
-    for rep in tqdm(range(repeats)): # Repeat the case x amount of times to get a more quantative result, the more repeats the less outliers in the final graph and thus a more streamlined result 
+    for rep in tqdm(range(repeats)): # The number of times the case is performed to provide a more quantifiable outcome; the more repetitions, the fewer outliers in the final graph, and hence a more streamlined conclusion.
                
         finalDecks = shuffle(allPlayers, amountShuffles)   # Performing the shuffle
 
