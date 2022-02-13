@@ -25,6 +25,8 @@ $ pip install tdqm
 
 It's possible to create scenario's for your needs. This can be done by making a new case near the beginning of the program. 
 
+![screenshot_Cardshuffle](https://user-images.githubusercontent.com/84782061/153746331-c8d7c55c-35af-4405-b175-7ca12d219ea7.jpg)
+
 It's also adviced to download this program into a new folder in order for the graphs to save there.
 
 To run this program, use the terminal and go to the folder containing this program. Then use:
